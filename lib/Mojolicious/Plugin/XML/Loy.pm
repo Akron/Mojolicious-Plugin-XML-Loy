@@ -135,6 +135,7 @@ __END__
 
 Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
 
+
 =head1 SYNOPSIS
 
   # Mojolicious
@@ -209,7 +210,7 @@ XML document generation based on L<XML::Loy>.
 The maximum size of an XML document to be parsed in bytes.
 
 
-=head2 C<namespace>
+=head2 namespace
 
   $xml->namespace('MyXMLFiles::XML');
   print $xml->namespace;
@@ -220,7 +221,7 @@ Defaults to C<XML::Loy>
 
 =head1 METHODS
 
-=head2 C<register>
+=head2 register
 
   # Mojolicious
   $mojo->plugin('XML::Loy' => {
@@ -261,7 +262,7 @@ as part of the configuration file with the key C<XML-Loy>.
 
 =head1 HELPERS
 
-=head2 C<new_xml>
+=head2 new_xml
 
   my $xml = $c->new_xml('entry');
   print $xml->to_pretty_xml;
@@ -272,7 +273,7 @@ the parameters as defined in the constructors of
 the L<XML::Loy> base classes.
 
 
-=head2 C<render_xml>
+=head2 render_xml
 
   $c->render_xml($xml);
   $c->render_xml($xml, code => 404);
