@@ -1,0 +1,6 @@
+lib/Mojolicious/Plugin/XML/Loy.pm
+t/Atom.t
+Changes
+MANIFEST
+LICENSE
+Makefile.PL

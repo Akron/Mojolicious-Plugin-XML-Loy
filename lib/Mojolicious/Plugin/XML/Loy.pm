@@ -3,14 +3,16 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
 use XML::Loy;
 
-# Namespace for xml classes and extensions
-has namespace => 'XML::Loy';
+our $VERSION = 0.01;
 
 my %base_classes;
 
 # Register Plugin
 sub register {
   my ($plugin, $mojo, $param) = @_;
+
+  my $namespace = 'XML::Loy::';
+  my $max_size = 1024;
 
   # Load parameter from Config file
   if (my $config_param = $mojo->config('XML-Loy')) {
@@ -19,7 +21,12 @@ sub register {
 
   # Set Namespace
   if (exists $param->{namespace}) {
-    $plugin->namespace(delete $param->{namespace});
+    $namespace = delete $param->{namespace};
+    $namespace .= '::' if $namespace;
+  };
+
+  if (exists $param->{max_size} && $param->{max_size} =~ /^\d+$/) {
+    $max_size = delete $param->{max_size};
   };
 
   # Start Mojo::Loader instance
@@ -28,16 +35,15 @@ sub register {
   # Create new XML helpers
   foreach my $helper (keys %$param) {
     my @helper = @{ $param->{ $helper } };
-    my $base = shift(@helper);
+    my $base = shift @helper;
 
-    my $module = $plugin->namespace .
-      ($base eq 'Loy' ? '' : "::$base");
+    $base = ($base eq 'Loy' ? 'XML::Loy' : $namespace . "$base");
 
     # Load module if not loaded
-    unless (exists $base_classes{$module}) {
+    unless (exists $base_classes{$base}) {
 
       # Load base class
-      if (my $e = $loader->load($module)) {
+      if (my $e = $loader->load($base)) {
 	for ($mojo->log) {
 	  $_->error("Exception: $e")  if ref $e;
 	  $_->error(qq{Unable to load base class "$base"});
@@ -45,29 +51,32 @@ sub register {
 	next;
       };
 
+      my $mime   = $base->mime;
+      my $prefix = $base->_prefix;
+
       # Establish mime types
-      if ((my $mime   = $module->mime) &&
-	    (my $prefix = $module->prefix)) {
+      if ($mime && $prefix) {
 
 	# Apply mime type
 	$mojo->types->type($prefix => $mime);
       };
 
       # module loaded
-      $base_classes{$module} = 1;
+      $base_classes{$base} = [$prefix => $mime];
     };
 
     # Code generation for ad-hoc helper
     my $code = 'sub { shift;' .
-      ' my $doc = ' . $plugin->namespace . '::' . $base . '->new( @_ );';
+      ' { use bytes; return if length "@_" > ' . $max_size . '} ' .
+      ' my $doc = ' . $base . '->new( @_ );';
 
     # Extend base class
     if (@helper) {
       $code .= '$doc->extension(' .
-	join(',', map( '"' . $plugin->namespace . qq{::$_"}, @helper)) .
+	join(',', map( '"' . $namespace . qq{$_"}, @helper)) .
       ");";
     };
-    $code .= 'return $doc; };';
+    $code .= 'return $doc };';
 
     # Eval code
     my $code_ref = eval $code;
@@ -96,10 +105,11 @@ sub register {
 	my ($c, $xml) = @_;
 	my $format = 'xml';
 
-	if (my $class = ref $xml) {
-	  if (defined $class->mime &&
-		defined $class->prefix) {
-	    $format = $class->prefix;
+	# Check format based on mime type
+	my $class = ref $xml;
+	if ($base_classes{$class}) {
+	  if ($base_classes{$class}->[0] && $base_classes{$class}->[1]) {
+	    $format = $base_classes{$class}->[0];
 	  };
 	};
 
@@ -136,7 +146,7 @@ Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
       new_myXML    => ['Loy', 'Atom', 'Atom-Threading']
     });
 
-  # In controller
+  # In controller use generic new_xml helper
   my $xml = $c->new_xml('entry');
   my $env = $xml->add('fun:env' => { foo => 'bar' });
   $xml->namespace(fun => 'http://sojolicio.us/ns/fun');
@@ -191,6 +201,14 @@ XML document generation based on L<XML::Loy>.
 
 =head1 ATTRIBUTES
 
+=head2 max_bytes
+
+  $xml->max_size(2048);
+  print $xml->max_size;
+
+The maximum size of an XML document to be parsed in bytes.
+
+
 =head2 C<namespace>
 
   $xml->namespace('MyXMLFiles::XML');
@@ -206,6 +224,7 @@ Defaults to C<XML::Loy>
 
   # Mojolicious
   $mojo->plugin('XML::Loy' => {
+    max_size     => 1024,
     namespace    => 'MyOwn::XML',
     new_activity => ['Atom', 'ActivityStreams']
   });
@@ -226,11 +245,11 @@ Called when registering the plugin.
 Accepts the attributes mentioned above as
 well as new xml profiles, defined by the
 name of the associated generation helper
-and an array reference defining the base
-class of the xml document and its extensions.
-
+and an array reference defining the profile.
+The first element in the array is the base class,
+followed by all extensions.
 To create a helper extending the base class,
-use 'Loy' as the base class.
+use C<Loy> as the first element.
 
   $mojo->plugin('XML::Loy' => {
     new_myXML => ['Loy', 'Atom']
@@ -249,7 +268,7 @@ as part of the configuration file with the key C<XML-Loy>.
 
 Creates a new generic L<XML::Loy> document.
 All helpers created on registration accept
-the parameters as defined in constructors of
+the parameters as defined in the constructors of
 the L<XML::Loy> base classes.
 
 
@@ -270,6 +289,7 @@ L<XML::Loy>.
 =head1 AVAILABILITY
 
   https://github.com/Akron/Mojolicious-Plugin-XML-Loy
+
 
 =head1 COPYRIGHT AND LICENSE
 
