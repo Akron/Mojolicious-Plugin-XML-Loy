@@ -141,14 +141,15 @@ Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
   # Mojolicious
   $mojo->plugin(
     'XML::Loy' => {
-      namespace    => 'XML::Loy',
       new_activity => ['Atom', 'ActivityStreams'],
       new_hostmeta => ['XRD', 'HostMeta'],
       new_myXML    => ['Loy', 'Atom', 'Atom-Threading']
     });
 
-  # In controller use generic new_xml helper
+  # In controllers use the generic new_xml helper
   my $xml = $c->new_xml('entry');
+
+  # Create a new XML::Loy document
   my $env = $xml->add('fun:env' => { foo => 'bar' });
   $xml->namespace(fun => 'http://sojolicio.us/ns/fun');
   my $data = $env->add(data => {
@@ -159,10 +160,9 @@ Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
     9yIHRoZSBhcm1vdXIgdHlwZS4gSXQncyBwcmV0
     dHkgbG9uZyBmb3IgZXhhbXBsZSBpc3N1ZXMu
   B64
-
   $data->comment('This is base64 data!');
 
-  # Render with correct mime-type
+  # Render document with the correct mime-type
   $c->render_xml($xml);
 
   # Content-Type: application/xml
@@ -182,7 +182,11 @@ Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
 
   # Use newly created helper
   my $xrd = $c->new_hostmeta;
+
+  # Create a document based on the defined xml profile
   $xrd->host('sojolicio.us');
+
+  # Render document with the correct mime-type
   $c->render_xml($xrd);
 
   # Content-Type: application/xrd+xml
@@ -201,6 +205,10 @@ XML document generation based on L<XML::Loy>.
 
 
 =head1 METHODS
+
+L<Mojolicious::Plugin::XML::Loy> inherits all methods
+from L<Mojolicious::Plugin> and implements the following
+new ones.
 
 =head2 register
 
