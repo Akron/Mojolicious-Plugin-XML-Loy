@@ -200,32 +200,13 @@ L<Mojolicious::Plugin::XML::Loy> is a plugin to support
 XML document generation based on L<XML::Loy>.
 
 
-=head1 ATTRIBUTES
-
-=head2 max_bytes
-
-  $xml->max_size(2048);
-  print $xml->max_size;
-
-The maximum size of an XML document to be parsed in bytes.
-
-
-=head2 namespace
-
-  $xml->namespace('MyXMLFiles::XML');
-  print $xml->namespace;
-
-The namespace of all XML plugins.
-Defaults to C<XML::Loy>
-
-
 =head1 METHODS
 
 =head2 register
 
   # Mojolicious
   $mojo->plugin('XML::Loy' => {
-    max_size     => 1024,
+    max_size     => 2048,
     namespace    => 'MyOwn::XML',
     new_activity => ['Atom', 'ActivityStreams']
   });
@@ -243,8 +224,7 @@ Defaults to C<XML::Loy>
   };
 
 Called when registering the plugin.
-Accepts the attributes mentioned above as
-well as new xml profiles, defined by the
+Accepts new xml profiles, defined by the
 name of the associated generation helper
 and an array reference defining the profile.
 The first element in the array is the base class,
@@ -255,6 +235,10 @@ use C<Loy> as the first element.
   $mojo->plugin('XML::Loy' => {
     new_myXML => ['Loy', 'Atom']
   });
+
+In addition to that, the C<max_size> in bytes of xml documents
+to be parsed can be defined (defaults to C<1024>) and the
+namespace of all L<XML::Loy> Extensions, defaults to C<XML::Loy>.
 
 All parameters can be set either on registration or
 as part of the configuration file with the key C<XML-Loy>.
