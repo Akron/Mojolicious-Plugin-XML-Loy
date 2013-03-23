@@ -114,7 +114,7 @@ use C<Loy> as the first element.
   });
 
 In addition to that, the C<max_size> in bytes of xml documents
-to be parsed can be defined (defaults to C<1024>) and the
+to be parsed can be defined (defaults to C<1024 * 1024>) and the
 namespace of all L<XML::Loy> Extensions, defaults to C<XML::Loy>.
 
 All parameters can be set either on registration or
@@ -137,10 +137,10 @@ the L<XML::Loy> base classes.
 =head2 render_xml
 
   $c->render_xml($xml);
-  $c->render_xml($xml, code => 404);
+  $c->render_xml($xml, status => 404);
 
 Renders documents based on L<XML::Loy>
-using the defined mime-type.
+using the defined mime-type of the base class.
 
 
 =head1 DEPENDENCIES

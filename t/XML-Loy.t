@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use lib ('lib', '../lib', '../../lib', '../../../lib');
+
+use Mojo::ByteStream 'b';
+use Test::Mojo;
+use Mojolicious::Lite;
+
+use Test::More;
+use Test::Warn;
+
+my $poco_ns  = 'http://www.w3.org/TR/2011/WD-contacts-api-20110616/';
+my $xhtml_ns = 'http://www.w3.org/1999/xhtml';
+
+use_ok('Mojolicious::Plugin::XML::Loy');
+
+# Plugin helper
+my $t = Test::Mojo->new;
+my $app = $t->app;
+
+$app->log->level('error');
+
+ok($app->plugin('XML::Loy' => {
+  new_atom => ['Atom'],
+  new_atom_threading => ['Atom','Atom::Threading'],
+  max_size => 700
+}), 'New plugin');
+
+ok(my $atom = $app->new_atom('feed'), 'Create new feed');
+
+ok(my $atom_string = $atom->to_pretty_xml, 'Create pretty xml');
+$atom_string =~ s/[\s\r\n]+//g;
+
+is ($atom_string, '<?xmlversion="1.0"encoding="UTF-8'.
+                  '"standalone="yes"?><feedxmlns="ht'.
+                  'tp://www.w3.org/2005/Atom"/>',
+                  'Initial Atom');
+
+ok(my $entry = $atom->entry(id => '#33775'), 'Add entry');
+
+ok(my $person = $atom->new_person(
+  name => 'Bender',
+  uri => 'http://sojolicio.us/bender'
+), 'Add person');
+
+$person->namespace('poco' => $poco_ns);
+$person->add('uri', 'http://sojolicio.us/fry');
+$person->add('poco:birthday' => '1/1/1970');
+
+
+ok($entry->author($person), 'Add author');
+
+is($atom->at('author name')->text, 'Bender', 'Author-Name');
+is($atom->at('author uri')->text, 'http://sojolicio.us/bender', 'Author-URI');
+is($atom->at('author birthday')->text, '1/1/1970', 'Author-Poco-Birthday');
+is($atom->at('author birthday')->namespace, $poco_ns, 'Author-Poco-NS');
+
+ok($atom->title(
+  type => 'html',
+  content => 'Dies ist <b>html</b> Inhalt.'
+), 'Add title');
+
+ok($atom->content(
+  type => 'xhtml',
+  content => 'This is <b>xhtml</b> content!'
+), 'Add content');
+
+ok(my $atom2 = $app->new_atom($atom->to_pretty_xml), 'Parse xml');
+
+is($atom2->at('content div b')->text, 'xhtml', 'Pretty Print');
+
+warning_is { $atom->in_reply_to('http://sojolicio.us') } q{Can't locate "in_reply_to" in "XML::Loy::Atom"}, "No threading";
+
+
+# Test Threading
+ok($entry = $app->new_atom_threading('entry'), 'New atom document');
+
+is($entry->at(':root')->namespace, 'http://www.w3.org/2005/Atom', 'Namespace');
+
+ok($person = $entry->new_person(name => 'Zoidberg'), 'New person');
+
+ok($entry->author($person), 'Add author');
+
+is($entry->at('entry > author > name')->text, 'Zoidberg', 'Name');
+
+ok($entry->contributor($person), 'Contributor');
+
+is($entry->at('entry > contributor > name')->text, 'Zoidberg', 'Name');
+
+$entry->id('http://sojolicio.us/blog/2');
+
+is($entry->at('entry')->attrs->{'xml:id'}, 'http://sojolicio.us/blog/2', 'id');
+is($entry->at('entry id')->text, 'http://sojolicio.us/blog/2', 'id');
+
+ok($entry->replies('http://sojolicio.us/entry/1/replies' => {
+  count => 5,
+  updated => '500000'
+}), 'Add replies entry');
+
+
+ok(my $link = $entry->at('link[rel="replies"]'), 'Get replies link');
+is($link->attrs('thr:count'), 5, 'Thread Count');
+is($link->attrs('thr:updated'), '1970-01-06T18:53:20Z', 'Thread update');
+is($link->attrs('href'), 'http://sojolicio.us/entry/1/replies', 'Thread href');
+is($link->attrs('type'), 'application/atom+xml', 'Thread type');
+is($link->namespace, 'http://www.w3.org/2005/Atom', 'Thread namespace');
+
+$entry->total(8);
+
+is($entry->at('total')->text, 8, 'Total number');
+is($entry->at('total')->namespace,
+   'http://purl.org/syndication/thread/1.0',
+   'Total namespace'
+ );
+
+ok($entry->in_reply_to(
+  'http://sojolicio.us/blog/1' => {
+    href => 'http://sojolicio.us/blog/1x'
+  }), 'Add in-reply-to');
+
+is($entry->at('in-reply-to')->namespace,
+   'http://purl.org/syndication/thread/1.0', 'In-reply-to namespace');
+
+is($entry->at('in-reply-to')->attrs('href'),
+   'http://sojolicio.us/blog/1x', 'In-reply-to href');
+
+is($entry->at('in-reply-to')->attrs('ref'),
+   'http://sojolicio.us/blog/1', 'In-reply-to ref');
+
+
+# Render
+get '/' => sub {
+  my $c = shift;
+  my $entry = $c->new_atom_threading('entry');
+  $entry->author(name => 'Akron');
+  return $c->render_xml($entry);
+};
+
+get '/xml' => sub {
+  my $c = shift;
+  my $entry = $c->new_xml(test => { root => 'yes' } => 'Works!');
+  return $c->render_xml($entry);
+};
+
+get '/fail' => sub {
+  my $c = shift;
+  my $entry = $c->new_xml(test => { root => 'yes' } => 'Works!');
+  return $c->render_xml($entry, status => 400);
+};
+
+$t->get_ok('/')
+  ->content_like(qr{<author>})
+  ->content_like(qr{<name>Akron</name>})
+  ->content_type_is('application/atom+xml')
+  ->status_is(200);
+
+$t->get_ok('/xml')
+  ->content_like(qr{<test})
+  ->content_like(qr{root="yes"})
+  ->content_type_is('application/xml')
+  ->status_is(200);
+
+$t->get_ok('/fail')
+  ->content_like(qr{<test})
+  ->content_like(qr{root="yes"})
+  ->text_is(':root', 'Works!')
+  ->content_type_is('application/xml')
+  ->status_is(400);
+
+get '/utf-8' => sub {
+  my $c = shift;
+  my $entry = $c->new_xml(test => { root => 'yes' } => 'Wörks!');
+  $entry->add('yeah' => 'üöä');
+  return $c->render_xml($entry, status => 400);
+};
+
+$t->get_ok('/utf-8')
+  ->content_like(qr{<test})
+  ->content_like(qr{root="yes"})
+  ->content_type_is('application/xml')
+  ->text_is(':root', 'Wörks!')
+  ->text_is('yeah', 'üöä')
+  ->status_is(400);
+
+
+# Max size
+ok($atom->add('Further' => 'This expands it')->add('Even' => 'further'),
+   'Extend object');
+ok(!($atom2 = $app->new_atom($atom->to_pretty_xml)), 'Parse xml');
+ok(!$atom2, 'To big');
+
+
+done_testing;
+
+__END__

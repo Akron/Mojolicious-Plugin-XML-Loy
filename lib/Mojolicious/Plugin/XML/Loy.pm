@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
 use XML::Loy;
 
-our $VERSION = 0.01;
+our $VERSION = '0.01';
 
 my %base_classes;
 
@@ -12,7 +12,7 @@ sub register {
   my ($plugin, $mojo, $param) = @_;
 
   my $namespace = 'XML::Loy::';
-  my $max_size = 1024;
+  my $max_size = 1024 * 1024;
 
   # Load parameter from Config file
   if (my $config_param = $mojo->config('XML-Loy')) {
@@ -67,7 +67,7 @@ sub register {
 
     # Code generation for ad-hoc helper
     my $code = 'sub { shift;' .
-      ' { use bytes; return if length "@_" > ' . $max_size . '} ' .
+      ' { use bytes; return if length("@_") > ' . $max_size . '} ' .
       ' my $doc = ' . $base . '->new( @_ );';
 
     # Extend base class
@@ -245,7 +245,7 @@ use C<Loy> as the first element.
   });
 
 In addition to that, the C<max_size> in bytes of xml documents
-to be parsed can be defined (defaults to C<1024>) and the
+to be parsed can be defined (defaults to C<1024 * 1024>) and the
 namespace of all L<XML::Loy> Extensions, defaults to C<XML::Loy>.
 
 All parameters can be set either on registration or
@@ -268,10 +268,10 @@ the L<XML::Loy> base classes.
 =head2 render_xml
 
   $c->render_xml($xml);
-  $c->render_xml($xml, code => 404);
+  $c->render_xml($xml, status => 404);
 
 Renders documents based on L<XML::Loy>
-using the defined mime-type.
+using the defined mime-type of the base class.
 
 
 =head1 DEPENDENCIES

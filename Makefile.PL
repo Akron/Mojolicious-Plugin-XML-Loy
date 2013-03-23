@@ -10,11 +10,12 @@ WriteMakefile(
   ABSTRACT     => 'XML generation with Mojolicious',
   AUTHOR       => 'Nils Diewald',
   BUILD_REQUIRES => {
-    'Test::More' => 0
+    'Test::More' => 0,
+    'Test::Warn' => 0
   },
   PREREQ_PM => {
     'Mojolicious' => 3.43,
-    'XML::Loy'    => 0.07
+    'XML::Loy' => 0.12
   },
   LICENSE      => 'perl',
   META_MERGE   => {
