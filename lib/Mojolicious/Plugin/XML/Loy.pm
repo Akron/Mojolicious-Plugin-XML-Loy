@@ -246,7 +246,7 @@ use C<Loy> as the first element.
 
 In addition to that, the C<max_size> in bytes of xml documents
 to be parsed can be defined (defaults to C<1024 * 1024>) and the
-namespace of all L<XML::Loy> Extensions, defaults to C<XML::Loy>.
+namespace of all L<XML::Loy> extensions, defaults to C<XML::Loy>.
 
 All parameters can be set either on registration or
 as part of the configuration file with the key C<XML-Loy>.

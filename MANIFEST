@@ -1,5 +1,5 @@
 lib/Mojolicious/Plugin/XML/Loy.pm
-t/Atom.t
+t/XML-Loy.t
 Changes
 MANIFEST
 LICENSE

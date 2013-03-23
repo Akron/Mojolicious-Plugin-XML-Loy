@@ -27,6 +27,8 @@ $app->log->level('error');
 ok($app->plugin('XML::Loy' => {
   new_atom => ['Atom'],
   new_atom_threading => ['Atom','Atom::Threading'],
+  new_myxml => ['Loy', 'Atom'],
+  new_hostmeta => ['XRD', 'HostMeta'],
   max_size => 700
 }), 'New plugin');
 
@@ -101,7 +103,6 @@ ok($entry->replies('http://sojolicio.us/entry/1/replies' => {
   updated => '500000'
 }), 'Add replies entry');
 
-
 ok(my $link = $entry->at('link[rel="replies"]'), 'Get replies link');
 is($link->attrs('thr:count'), 5, 'Thread Count');
 is($link->attrs('thr:updated'), '1970-01-06T18:53:20Z', 'Thread update');
@@ -109,7 +110,7 @@ is($link->attrs('href'), 'http://sojolicio.us/entry/1/replies', 'Thread href');
 is($link->attrs('type'), 'application/atom+xml', 'Thread type');
 is($link->namespace, 'http://www.w3.org/2005/Atom', 'Thread namespace');
 
-$entry->total(8);
+ok($entry->total(8), 'Set total');
 
 is($entry->at('total')->text, 8, 'Total number');
 is($entry->at('total')->namespace,
@@ -130,6 +131,17 @@ is($entry->at('in-reply-to')->attrs('href'),
 
 is($entry->at('in-reply-to')->attrs('ref'),
    'http://sojolicio.us/blog/1', 'In-reply-to ref');
+
+ok(my $atom3 = $app->new_myxml('test'), 'New object');
+is($atom3->mime, 'application/xml', 'Mime');
+ok(my $myelem = $atom3->add('myelem'), 'New element');
+ok($myelem->author(name => 'Mario'), 'Add author name');
+
+is($myelem->mime, 'application/xml', 'Mime');
+
+is($myelem->type, 'myelem', 'Mime');
+is($myelem->namespace, '', 'Mime');
+is($myelem->at('name')->namespace, 'http://www.w3.org/2005/Atom', 'Mime');
 
 
 # Render
@@ -192,6 +204,24 @@ ok($atom->add('Further' => 'This expands it')->add('Even' => 'further'),
    'Extend object');
 ok(!($atom2 = $app->new_atom($atom->to_pretty_xml)), 'Parse xml');
 ok(!$atom2, 'To big');
+
+
+get '/hostmeta' => sub {
+  my $c = shift;
+  my $xrd = $c->new_hostmeta;
+  $xrd->host('sojolicio.us');
+
+  # Render document with the correct mime-type
+  return $c->render_xml($xrd);
+};
+
+$t->get_ok('/hostmeta')
+  ->content_like(qr{<hm:Host})
+  ->content_like(qr{xmlns:xsi})
+  ->content_like(qr{xmlns:hm})
+  ->content_type_is('application/xrd+xml')
+  ->text_is('Host', 'sojolicio.us')
+  ->status_is(200);
 
 
 done_testing;
