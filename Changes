@@ -1,3 +1,7 @@
-0.01 2013-03-09
+0.02 2013-03-24
+        - Fix bug in documentation.
+
+0.01 2013-03-23
+        - Initial CPAN release.
         - Separation from Sojolicious package.
         - Initial submission to GitHub.

@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
 use XML::Loy;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my %base_classes;
 
@@ -143,7 +143,7 @@ Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
     'XML::Loy' => {
       new_activity => ['Atom', 'ActivityStreams'],
       new_hostmeta => ['XRD', 'HostMeta'],
-      new_myXML    => ['Loy', 'Atom', 'Atom-Threading']
+      new_myXML    => ['Loy', 'Atom', 'Atom::Threading']
     });
 
   # In controllers use the generic new_xml helper
