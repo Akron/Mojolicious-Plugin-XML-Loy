@@ -150,35 +150,34 @@ Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
   my $xml = $c->new_xml('entry');
 
   # Create a new XML::Loy document
-  my $env = $xml->add('fun:env' => { foo => 'bar' });
-  $xml->namespace(fun => 'http://sojolicio.us/ns/fun');
-  my $data = $env->add(data => {
-    type  => 'text/plain',
-    -type => 'armour:30'
-  } => <<'B64');
-    VGhpcyBpcyBqdXN0IGEgdGVzdCBzdHJpbmcgZm
-    9yIHRoZSBhcm1vdXIgdHlwZS4gSXQncyBwcmV0
-    dHkgbG9uZyBmb3IgZXhhbXBsZSBpc3N1ZXMu
-  B64
-  $data->comment('This is base64 data!');
+  my $xml = $app->new_xml('html');
+
+  $xml->add('header')->add(
+    title => 'XML-Loy example' => 'My Title!'
+  );
+
+  for ($xml->add('body' => { style => 'color: red' })) {
+    $_->add(p => 'First paragraph');
+    $_->add(p => { -type => 'raw' } => 'Second')
+      ->add(b => 'paragraph');
+  };
 
   # Render document with the correct mime-type
   $c->render_xml($xml);
 
   # Content-Type: application/xml
   # <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-  # <entry xmlns:fun="http://sojolicio.us/ns/fun">
-  #   <fun:env foo="bar">
+  # <html>
+  #   <header>
   #
-  #     <!-- This is base64 data! -->
-  #     <data type="text/plain">
-  #       VGhpcyBpcyBqdXN0IGEgdGVzdCBzdH
-  #       JpbmcgZm9yIHRoZSBhcm1vdXIgdHlw
-  #       ZS4gSXQncyBwcmV0dHkgbG9uZyBmb3
-  #       IgZXhhbXBsZSBpc3N1ZXMu
-  #     </data>
-  #   </fun:env>
-  # </entry>
+  #     <!-- My Title! -->
+  #     <title>XML-Loy example</title>
+  #   </header>
+  #   <body style="color: red">
+  #     <p>First paragraph</p>
+  #     <p>Second<b>paragraph</b></p>
+  #   </body>
+  # </html>
 
   # Use newly created helper
   my $xrd = $c->new_hostmeta;

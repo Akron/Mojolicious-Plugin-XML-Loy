@@ -223,7 +223,6 @@ $t->get_ok('/hostmeta')
   ->text_is('Host', 'sojolicio.us')
   ->status_is(200);
 
-
 done_testing;
 
 __END__
