@@ -147,6 +147,7 @@ using the defined mime-type of the base class.
 L<Mojolicious>,
 L<XML::Loy>.
 
+
 =head1 AVAILABILITY
 
   https://github.com/Akron/Mojolicious-Plugin-XML-Loy

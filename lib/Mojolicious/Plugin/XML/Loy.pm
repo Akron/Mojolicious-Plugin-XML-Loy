@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
 use XML::Loy;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my %base_classes;
 
@@ -34,6 +34,13 @@ sub register {
 
   # Create new XML helpers
   foreach my $helper (keys %$param) {
+
+    # Already defined
+    if (exists $mojo->renderer->helpers->{$helper}) {
+      $mojo->log->debug("Helper '$helper' already defined");
+      next;
+    };
+
     my @helper = @{ $param->{ $helper } };
     my $base = shift @helper;
 
@@ -277,6 +284,7 @@ using the defined mime-type of the base class.
 
 L<Mojolicious>,
 L<XML::Loy>.
+
 
 =head1 AVAILABILITY
 

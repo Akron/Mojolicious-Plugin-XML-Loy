@@ -223,6 +223,15 @@ $t->get_ok('/hostmeta')
   ->text_is('Host', 'sojolicio.us')
   ->status_is(200);
 
+
+ok($app->plugin('XML::Loy' => {
+  new_atom => ['Atom']
+}), 'Again create new_atom');
+
+ok(my $xml = $app->new_myxml(feed => 'Hey!'), 'New XML');
+ok($xml = $app->new_atom('feed'), 'New XML');
+
+
 done_testing;
 
 __END__
