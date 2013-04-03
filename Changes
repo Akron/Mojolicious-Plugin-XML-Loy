@@ -1,5 +1,6 @@
-0.04 2013-03-29
+0.04 2013-04-03
         - Update dependencies.
+	- Improved test suite.
 
 0.03 2013-03-28
         - Fix bug in redefined helpers.
