@@ -23,10 +23,10 @@ my $app = $t->app;
 $app->log->level('error');
 
 ok($app->plugin('XML::Loy' => {
-  new_atom => ['Atom'],
-  new_atom_threading => ['Atom','Atom::Threading'],
-  new_myxml => ['Loy', 'Atom'],
-  new_hostmeta => ['XRD', 'HostMeta'],
+  new_atom => [-Atom],
+  new_atom_threading => [-Atom,-Atom::Threading],
+  new_myxml => [-Loy, -Atom],
+  new_hostmeta => [-XRD, -HostMeta],
   max_size => 700
 }), 'New plugin');
 
@@ -223,7 +223,7 @@ $t->get_ok('/hostmeta')
 
 
 ok($app->plugin('XML::Loy' => {
-  new_atom => ['Atom']
+  new_atom => [-Atom]
 }), 'Again create new_atom');
 
 ok(my $xml = $app->new_myxml(feed => 'Hey!'), 'New XML');

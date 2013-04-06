@@ -7,7 +7,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
   NAME         => 'Mojolicious::Plugin::XML::Loy',
   VERSION_FROM => 'lib/Mojolicious/Plugin/XML/Loy.pm',
-  ABSTRACT     => 'XML generation with Mojolicious',
+  ABSTRACT     => 'XML Generation with Mojolicious',
   AUTHOR       => 'Nils Diewald',
   BUILD_REQUIRES => {
     'Test::More' => 0,
@@ -15,7 +15,7 @@ WriteMakefile(
   },
   PREREQ_PM => {
     'Mojolicious' => 3.43,
-    'XML::Loy' => 0.13
+    'XML::Loy' => 0.15
   },
   LICENSE      => 'perl',
   META_MERGE   => {

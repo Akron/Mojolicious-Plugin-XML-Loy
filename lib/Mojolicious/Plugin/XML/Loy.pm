@@ -1,6 +1,7 @@
 package Mojolicious::Plugin::XML::Loy;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
+use Mojo::Util 'deprecated';
 use XML::Loy;
 
 our $VERSION = '0.04';
@@ -21,6 +22,7 @@ sub register {
 
   # Set Namespace
   if (exists $param->{namespace}) {
+    deprecated 'namespace parameter is DEPRECATED in favor of minus symbol';
     $namespace = delete $param->{namespace};
     $namespace .= '::' if $namespace;
   };
@@ -44,7 +46,24 @@ sub register {
     my @helper = @{ $param->{ $helper } };
     my $base = shift @helper;
 
-    $base = ($base eq 'Loy' ? 'XML::Loy' : $namespace . "$base");
+    # Deprecated in M::P::XML::Loy 0.4
+    if ($base eq 'Loy') {
+      deprecated 'Loy is DEPRECATED as a base in favor of -Loy';
+      $base = '-Loy';
+    };
+
+    if ($base eq '-Loy') {
+      $base = 'XML::Loy';
+    }
+    elsif ($base ~~ [qw/Atom XRD HostMeta ActivityStreams Atom::Threading/]) {
+      deprecated $base . ' is DEPRECATED as a base in favor of -' . $base;
+      $base = '-' . $base;
+    };
+
+    if (index($base, '-') == 0) {
+      $base =~ s/^-//;
+      $base = ($base eq 'Loy' ? 'XML::Loy' : $namespace . "$base");
+    };
 
     # Load module if not loaded
     unless (exists $base_classes{$base}) {
@@ -80,7 +99,7 @@ sub register {
     # Extend base class
     if (@helper) {
       $code .= '$doc->extension(' .
-	join(',', map( '"' . $namespace . qq{$_"}, @helper)) .
+	join(',', map( '"' . qq{$_"}, @helper)) .
       ");";
     };
     $code .= 'return $doc };';
@@ -140,7 +159,7 @@ __END__
 
 =head1 NAME
 
-Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
+Mojolicious::Plugin::XML::Loy - XML Generation with Mojolicious
 
 
 =head1 SYNOPSIS
@@ -148,9 +167,9 @@ Mojolicious::Plugin::XML::Loy - XML generation with Mojolicious
   # Mojolicious
   $mojo->plugin(
     'XML::Loy' => {
-      new_activity => ['Atom', 'ActivityStreams'],
-      new_hostmeta => ['XRD', 'HostMeta'],
-      new_myXML    => ['Loy', 'Atom', 'Atom::Threading']
+      new_activity => [-Atom, -ActivityStreams],
+      new_hostmeta => [-XRD, -HostMeta],
+      new_myXML    => [-Loy, -Atom, -Atom::Threading]
     });
 
   # In controllers use the generic new_xml helper
@@ -221,19 +240,18 @@ new ones.
   # Mojolicious
   $mojo->plugin('XML::Loy' => {
     max_size     => 2048,
-    namespace    => 'MyOwn::XML',
-    new_activity => ['Atom', 'ActivityStreams']
+    new_activity => [-Atom, -ActivityStreams]
   });
 
   # Mojolicious::Lite
   plugin 'XML::Loy' => {
-    new_activity => ['Atom', 'ActivityStreams']
+    new_activity => [-Atom, -ActivityStreams]
   };
 
   # In your config file
   {
     'XML-Loy' => {
-      new_activity => ['Atom', 'ActivityStreams']
+      new_activity => [-Atom, -ActivityStreams]
     }
   };
 
@@ -244,18 +262,19 @@ and an array reference defining the profile.
 The first element in the array is the base class,
 followed by all extensions.
 To create a helper extending the base class,
-use C<Loy> as the first element.
+use C<-Loy> as the first element.
 
   $mojo->plugin('XML::Loy' => {
-    new_myXML => ['Loy', 'Atom']
+    new_myXML => [-Loy, 'MyXML::Loy::Extension']
   });
 
 In addition to that, the C<max_size> in bytes of xml documents
-to be parsed can be defined (defaults to C<1024 * 1024>) and the
-namespace of all L<XML::Loy> extensions, defaults to C<XML::Loy>.
+to be parsed can be defined (defaults to C<1024 * 1024>).
 
 All parameters can be set either on registration or
 as part of the configuration file with the key C<XML-Loy>.
+
+B<Note:> The C<namespace> parameter is DEPRECATED.
 
 
 =head1 HELPERS
