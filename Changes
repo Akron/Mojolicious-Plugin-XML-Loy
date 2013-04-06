@@ -1,6 +1,8 @@
-0.04 2013-04-03
+0.04 2013-04-06
         - Update dependencies.
 	- Improved test suite.
+	- Deprecated namespace parameter and
+	  unprepended classes.
 
 0.03 2013-03-28
         - Fix bug in redefined helpers.
