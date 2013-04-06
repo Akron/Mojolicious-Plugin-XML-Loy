@@ -4,7 +4,7 @@ use Mojo::Loader;
 use Mojo::Util 'deprecated';
 use XML::Loy;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 my %base_classes;
 

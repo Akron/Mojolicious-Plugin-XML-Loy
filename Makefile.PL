@@ -14,7 +14,7 @@ WriteMakefile(
     'Test::Warn' => 0
   },
   PREREQ_PM => {
-    'Mojolicious' => 3.43,
+    'Mojolicious' => 3.87,
     'XML::Loy' => 0.15
   },
   LICENSE      => 'perl',
