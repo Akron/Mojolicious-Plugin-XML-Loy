@@ -4,7 +4,7 @@ use Mojo::Loader;
 use Mojo::Util 'deprecated';
 use XML::Loy;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 my %base_classes;
 
@@ -55,7 +55,7 @@ sub register {
     if ($base eq '-Loy') {
       $base = 'XML::Loy';
     }
-    elsif ($base ~~ [qw/Atom XRD HostMeta ActivityStreams Atom::Threading/]) {
+    elsif ($base =~ m/^(?:Atom(?:\:\:Threading)|XRD|HostMeta|ActivityStreams)$/) {
       deprecated $base . ' is DEPRECATED as a base in favor of -' . $base;
       $base = '-' . $base;
     };
@@ -140,8 +140,8 @@ sub register {
 	};
 
 	# render XML with correct mime type
-	return $c->render_data(
-	  $xml->to_pretty_xml,
+	return $c->render(
+	  'data'   => $xml->to_pretty_xml,
 	  'format' => $format,
 	  @_
 	);

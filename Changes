@@ -1,3 +1,6 @@
+0.06 2013-05-20
+        - Fixed Mojolicious 4.0 compatibility.
+
 0.05 2013-04-06
         - Fixed dependency bug.
 
