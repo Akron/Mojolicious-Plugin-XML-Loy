@@ -16,12 +16,7 @@ sub register {
   my $max_size = 1024 * 1024;
 
   # Load parameter from Config file
-  if (my $config_param = $mojo->config('XML::Loy')) {
-    $param = { %$config_param, %$param };
-  }
-  elsif ($config_param = $mojo->config('XML-Loy')) {
-    $mojo->log->warn('Using "XML-Loy" as a configuration key is ' .
-		     'DEPRECATED in fovor of "XML::Loy"');
+  if (my $config_param = $mojo->config('XML-Loy')) {
     $param = { %$config_param, %$param };
   };
 
@@ -280,7 +275,6 @@ All parameters can be set either on registration or
 as part of the configuration file with the key C<XML::Loy>.
 
 B<Note:> The C<namespace> parameter is DEPRECATED.
-The C<XML-Loy> configuration key is DEPRECATED.
 
 
 =head1 HELPERS
