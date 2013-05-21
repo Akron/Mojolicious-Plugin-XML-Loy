@@ -4,7 +4,7 @@ use Mojo::Loader;
 use Mojo::Util 'deprecated';
 use XML::Loy;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 my %base_classes;
 
@@ -16,7 +16,12 @@ sub register {
   my $max_size = 1024 * 1024;
 
   # Load parameter from Config file
-  if (my $config_param = $mojo->config('XML-Loy')) {
+  if (my $config_param = $mojo->config('XML::Loy')) {
+    $param = { %$config_param, %$param };
+  }
+  elsif ($config_param = $mojo->config('XML-Loy')) {
+    $mojo->log->warn('Using "XML-Loy" as a configuration key is ' .
+		     'DEPRECATED in fovor of "XML::Loy"');
     $param = { %$config_param, %$param };
   };
 
@@ -238,19 +243,19 @@ new ones.
 =head2 register
 
   # Mojolicious
-  $mojo->plugin('XML::Loy' => {
+  $mojo->plugin(XML::Loy => {
     max_size     => 2048,
     new_activity => [-Atom, -ActivityStreams]
   });
 
   # Mojolicious::Lite
-  plugin 'XML::Loy' => {
+  plugin XML::Loy => {
     new_activity => [-Atom, -ActivityStreams]
   };
 
   # In your config file
   {
-    'XML-Loy' => {
+    XML::Loy => {
       new_activity => [-Atom, -ActivityStreams]
     }
   };
@@ -272,9 +277,10 @@ In addition to that, the C<max_size> in bytes of xml documents
 to be parsed can be defined (defaults to C<1024 * 1024>).
 
 All parameters can be set either on registration or
-as part of the configuration file with the key C<XML-Loy>.
+as part of the configuration file with the key C<XML::Loy>.
 
 B<Note:> The C<namespace> parameter is DEPRECATED.
+The C<XML-Loy> configuration key is DEPRECATED.
 
 
 =head1 HELPERS
