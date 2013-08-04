@@ -93,7 +93,7 @@ is($entry->at('entry > contributor > name')->text, 'Zoidberg', 'Name');
 
 $entry->id('http://sojolicio.us/blog/2');
 
-is($entry->at('entry')->attrs->{'xml:id'}, 'http://sojolicio.us/blog/2', 'id');
+is($entry->at('entry')->attr->{'xml:id'}, 'http://sojolicio.us/blog/2', 'id');
 is($entry->at('entry id')->text, 'http://sojolicio.us/blog/2', 'id');
 
 ok($entry->replies('http://sojolicio.us/entry/1/replies' => {
@@ -102,10 +102,10 @@ ok($entry->replies('http://sojolicio.us/entry/1/replies' => {
 }), 'Add replies entry');
 
 ok(my $link = $entry->at('link[rel="replies"]'), 'Get replies link');
-is($link->attrs('thr:count'), 5, 'Thread Count');
-is($link->attrs('thr:updated'), '1970-01-06T18:53:20Z', 'Thread update');
-is($link->attrs('href'), 'http://sojolicio.us/entry/1/replies', 'Thread href');
-is($link->attrs('type'), 'application/atom+xml', 'Thread type');
+is($link->attr('thr:count'), 5, 'Thread Count');
+is($link->attr('thr:updated'), '1970-01-06T18:53:20Z', 'Thread update');
+is($link->attr('href'), 'http://sojolicio.us/entry/1/replies', 'Thread href');
+is($link->attr('type'), 'application/atom+xml', 'Thread type');
 is($link->namespace, 'http://www.w3.org/2005/Atom', 'Thread namespace');
 
 ok($entry->total(8), 'Set total');
@@ -124,10 +124,10 @@ ok($entry->in_reply_to(
 is($entry->at('in-reply-to')->namespace,
    'http://purl.org/syndication/thread/1.0', 'In-reply-to namespace');
 
-is($entry->at('in-reply-to')->attrs('href'),
+is($entry->at('in-reply-to')->attr('href'),
    'http://sojolicio.us/blog/1x', 'In-reply-to href');
 
-is($entry->at('in-reply-to')->attrs('ref'),
+is($entry->at('in-reply-to')->attr('ref'),
    'http://sojolicio.us/blog/1', 'In-reply-to ref');
 
 ok(my $atom3 = $app->new_myxml('test'), 'New object');
