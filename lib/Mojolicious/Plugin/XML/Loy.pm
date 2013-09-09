@@ -1,10 +1,9 @@
 package Mojolicious::Plugin::XML::Loy;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
-use Mojo::Util 'deprecated';
 use XML::Loy;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 my %base_classes;
 
@@ -18,13 +17,6 @@ sub register {
   # Load parameter from Config file
   if (my $config_param = $mojo->config('XML-Loy')) {
     $param = { %$config_param, %$param };
-  };
-
-  # Set Namespace
-  if (exists $param->{namespace}) {
-    deprecated 'namespace parameter is DEPRECATED in favor of minus symbol';
-    $namespace = delete $param->{namespace};
-    $namespace .= '::' if $namespace;
   };
 
   if (exists $param->{max_size} && $param->{max_size} =~ /^\d+$/) {
@@ -46,19 +38,7 @@ sub register {
     my @helper = @{ $param->{ $helper } };
     my $base = shift @helper;
 
-    # Deprecated in M::P::XML::Loy 0.4
-    if ($base eq 'Loy') {
-      deprecated 'Loy is DEPRECATED as a base in favor of -Loy';
-      $base = '-Loy';
-    };
-
-    if ($base eq '-Loy') {
-      $base = 'XML::Loy';
-    }
-    elsif ($base =~ m/^(?:Atom(?:\:\:Threading)|XRD|HostMeta|ActivityStreams)$/) {
-      deprecated $base . ' is DEPRECATED as a base in favor of -' . $base;
-      $base = '-' . $base;
-    };
+    $base = 'XML::Loy' if $base eq '-Loy';
 
     if (index($base, '-') == 0) {
       $base =~ s/^-//;
@@ -273,8 +253,6 @@ to be parsed can be defined (defaults to C<1024 * 1024>).
 
 All parameters can be set either on registration or
 as part of the configuration file with the key C<XML::Loy>.
-
-B<Note:> The C<namespace> parameter is DEPRECATED.
 
 
 =head1 HELPERS

@@ -1,3 +1,6 @@
+0.09 2013-09-10
+        - Delete deprecation warnings.
+
 0.08 2013-08-03
         - Update to Mojolicious 4.23.
 
