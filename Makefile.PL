@@ -17,7 +17,7 @@ WriteMakefile(
     'Mojolicious' => 4.23,
     'XML::Loy' => 0.19
   },
-  LICENSE      => 'perl',
+  LICENSE      => 'artistic_2',
   META_MERGE   => {
     requires  => {perl => '5.010001'},
     resources => {

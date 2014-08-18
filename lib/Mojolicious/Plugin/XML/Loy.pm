@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
 use XML::Loy;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 my %base_classes;
 
@@ -16,7 +16,7 @@ sub register {
 
   # Load parameter from Config file
   if (my $config_param = $mojo->config('XML-Loy')) {
-    $param = { %$config_param, %$param };
+    $param = { %$param, %$config_param };
   };
 
   if (exists $param->{max_size} && $param->{max_size} =~ /^\d+$/) {
@@ -251,8 +251,9 @@ use C<-Loy> as the first element.
 In addition to that, the C<max_size> in bytes of xml documents
 to be parsed can be defined (defaults to C<1024 * 1024>).
 
-All parameters can be set either on registration or
-as part of the configuration file with the key C<XML::Loy>.
+All parameters can be set either as part of the configuration
+file with the key C<XML-Loy> or on registration
+(that can be overwritten by configuration).
 
 
 =head1 HELPERS
@@ -290,9 +291,9 @@ L<XML::Loy>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011-2013, L<Nils Diewald|http://nils-diewald.de/>.
+Copyright (C) 2011-2014, L<Nils Diewald|http://nils-diewald.de/>.
 
 This program is free software, you can redistribute it
-and/or modify it under the same terms as Perl.
+and/or modify it under the terms of the Artistic License version 2.0.
 
 =cut

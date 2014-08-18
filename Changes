@@ -1,3 +1,8 @@
+0.10 2014-08-18
+	- Fixed License issue (now coherent Artistic License 2.0).
+	- Bugfix of documentation for configuration key
+          (XML-Loy instead of XML::Loy).
+
 0.09 2013-09-10
         - Delete deprecation warnings.
 
