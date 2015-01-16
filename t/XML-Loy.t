@@ -138,7 +138,7 @@ ok($myelem->author(name => 'Mario'), 'Add author name');
 is($myelem->mime, 'application/xml', 'Mime');
 
 is($myelem->type, 'myelem', 'Mime');
-is($myelem->namespace, '', 'Mime');
+is($myelem->namespace, undef, 'Mime');
 is($myelem->at('name')->namespace, 'http://www.w3.org/2005/Atom', 'Mime');
 
 

@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader;
 use XML::Loy;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 my %base_classes;
 

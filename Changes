@@ -1,3 +1,7 @@
+0.11 2015-01-03
+        - Updated dependency on XML::Loy.
+        - Fixed namespace handling for 5.71 (renee++ for reporting!).
+
 0.10 2014-08-18
 	- Fixed License issue (now coherent Artistic License 2.0).
 	- Bugfix of documentation for configuration key
