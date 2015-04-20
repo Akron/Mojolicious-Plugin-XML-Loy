@@ -1,9 +1,9 @@
 package Mojolicious::Plugin::XML::Loy;
 use Mojo::Base 'Mojolicious::Plugin';
-use Mojo::Loader;
+use Mojo::Loader qw/load_class/;
 use XML::Loy;
 
-our $VERSION = '0.11';
+our $VERSION = '0.13';
 
 my %base_classes;
 
@@ -22,9 +22,6 @@ sub register {
   if (exists $param->{max_size} && $param->{max_size} =~ /^\d+$/) {
     $max_size = delete $param->{max_size};
   };
-
-  # Start Mojo::Loader instance
-  my $loader = Mojo::Loader->new;
 
   # Create new XML helpers
   foreach my $helper (keys %$param) {
@@ -49,7 +46,7 @@ sub register {
     unless (exists $base_classes{$base}) {
 
       # Load base class
-      if (my $e = $loader->load($base)) {
+      if (my $e = load_class $base) {
 	for ($mojo->log) {
 	  $_->error("Exception: $e")  if ref $e;
 	  $_->error(qq{Unable to load base class "$base"});
@@ -291,7 +288,7 @@ L<XML::Loy>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011-2014, L<Nils Diewald|http://nils-diewald.de/>.
+Copyright (C) 2011-2015, L<Nils Diewald|http://nils-diewald.de/>.
 
 This program is free software, you can redistribute it
 and/or modify it under the terms of the Artistic License version 2.0.
