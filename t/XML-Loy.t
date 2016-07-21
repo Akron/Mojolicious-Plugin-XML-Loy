@@ -147,19 +147,25 @@ get '/' => sub {
   my $c = shift;
   my $entry = $c->new_atom_threading('entry');
   $entry->author(name => 'Akron');
-  return $c->render_xml($entry);
+
+  # Deprecated but tested!
+  my $warn;
+  local $SIG{__WARN__} = sub { $warn = shift };
+  my $return = $c->render_xml($entry);
+  like($warn, qr!\Qrender_xml is deprecated in favor of reply->xml\E!);
+  return $return;
 };
 
 get '/xml' => sub {
   my $c = shift;
   my $entry = $c->new_xml(test => { root => 'yes' } => 'Works!');
-  return $c->render_xml($entry);
+  return $c->reply->xml($entry);
 };
 
 get '/fail' => sub {
   my $c = shift;
   my $entry = $c->new_xml(test => { root => 'yes' } => 'Works!');
-  return $c->render_xml($entry, status => 400);
+  return $c->reply->xml($entry, status => 400);
 };
 
 $t->get_ok('/')
@@ -185,7 +191,7 @@ get '/utf-8' => sub {
   my $c = shift;
   my $entry = $c->new_xml(test => { root => 'yes' } => 'Wörks!');
   $entry->add('yeah' => 'üöä');
-  return $c->render_xml($entry, status => 400);
+  return $c->reply->xml($entry, status => 400);
 };
 
 $t->get_ok('/utf-8')
@@ -210,7 +216,7 @@ get '/hostmeta' => sub {
   $xrd->host('sojolicio.us');
 
   # Render document with the correct mime-type
-  return $c->render_xml($xrd);
+  return $c->reply->xml($xrd);
 };
 
 $t->get_ok('/hostmeta')

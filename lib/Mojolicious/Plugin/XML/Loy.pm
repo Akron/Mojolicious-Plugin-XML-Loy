@@ -1,6 +1,7 @@
 package Mojolicious::Plugin::XML::Loy;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader qw/load_class/;
+use Mojo::Util qw!deprecated!;
 use XML::Loy;
 
 our $VERSION = '0.14';
@@ -101,28 +102,36 @@ sub register {
 	return XML::Loy->new( @_ );
       });
 
+    my $reply_xml = sub {
+      my ($c, $xml) = @_;
+      my $format = 'xml';
+
+      # Check format based on mime type
+      my $class = ref $xml;
+      if ($base_classes{$class}) {
+	if ($base_classes{$class}->[0] && $base_classes{$class}->[1]) {
+	  $format = $base_classes{$class}->[0];
+	};
+      };
+
+      # render XML with correct mime type
+      return $c->render(
+	'data'   => $xml->to_pretty_xml,
+	'format' => $format,
+	@_
+      );
+    };
 
     # Add 'render_xml' helper
     $mojo->helper(
       render_xml => sub {
-	my ($c, $xml) = @_;
-	my $format = 'xml';
+	deprecated 'render_xml is deprecated in favor of reply->xml';
+	$reply_xml->(@_);
+      }
+    );
 
-	# Check format based on mime type
-	my $class = ref $xml;
-	if ($base_classes{$class}) {
-	  if ($base_classes{$class}->[0] && $base_classes{$class}->[1]) {
-	    $format = $base_classes{$class}->[0];
-	  };
-	};
-
-	# render XML with correct mime type
-	return $c->render(
-	  'data'   => $xml->to_pretty_xml,
-	  'format' => $format,
-	  @_
-	);
-      });
+    # Add 'reply->xml' helper
+    $mojo->helper('reply.xml' => $reply_xml);
   };
 };
 
@@ -166,7 +175,7 @@ Mojolicious::Plugin::XML::Loy - XML Generation with Mojolicious
   };
 
   # Render document with the correct mime-type
-  $c->render_xml($xml);
+  $c->reply->xml($xml);
 
   # Content-Type: application/xml
   # <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -189,7 +198,7 @@ Mojolicious::Plugin::XML::Loy - XML Generation with Mojolicious
   $xrd->host('sojolicio.us');
 
   # Render document with the correct mime-type
-  $c->render_xml($xrd);
+  $c->reply->xml($xrd);
 
   # Content-Type: application/xrd+xml
   # <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -266,10 +275,10 @@ the parameters as defined in the constructors of
 the L<XML::Loy> base classes.
 
 
-=head2 render_xml
+=head2 reply->xml
 
-  $c->render_xml($xml);
-  $c->render_xml($xml, status => 404);
+  $c->reply->xml($xml);
+  $c->reply->xml($xml, status => 404);
 
 Renders documents based on L<XML::Loy>
 using the defined mime-type of the base class.
