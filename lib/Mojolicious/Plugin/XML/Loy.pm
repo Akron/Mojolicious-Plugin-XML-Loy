@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Loader qw/load_class/;
 use XML::Loy;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 my %base_classes;
 
@@ -288,7 +288,7 @@ L<XML::Loy>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011-2015, L<Nils Diewald|http://nils-diewald.de/>.
+Copyright (C) 2011-2016, L<Nils Diewald|http://nils-diewald.de/>.
 
 This program is free software, you can redistribute it
 and/or modify it under the terms of the Artistic License version 2.0.

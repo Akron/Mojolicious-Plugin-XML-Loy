@@ -1,3 +1,6 @@
+0.14 2016-07-21
+        - Fixed compatibility with Mojolicious 7.
+
 0.13 2015-04-20
         - Updated dependency on XML::Loy.
 	- Fixed compatibility with Mojolicious 6.

@@ -192,7 +192,7 @@ $t->get_ok('/utf-8')
   ->content_like(qr{<test})
   ->content_like(qr{root="yes"})
   ->content_type_is('application/xml')
-  ->text_is(':root', 'Wörks!')
+  ->text_like(':root', qr/\s*Wörks!\s*/)
   ->text_is('yeah', 'üöä')
   ->status_is(400);
 
