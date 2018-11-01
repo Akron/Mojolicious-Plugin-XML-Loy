@@ -81,19 +81,19 @@ new ones.
 =head2 register
 
   # Mojolicious
-  $mojo->plugin(XML::Loy => {
+  $mojo->plugin('XML::Loy' => {
     max_size     => 2048,
     new_activity => [-Atom, -ActivityStreams]
   });
 
   # Mojolicious::Lite
-  plugin XML::Loy => {
+  plugin 'XML::Loy' => {
     new_activity => [-Atom, -ActivityStreams]
   };
 
   # In your config file
   {
-    XML::Loy => {
+    'XML-Loy' => {
       new_activity => [-Atom, -ActivityStreams]
     }
   };
